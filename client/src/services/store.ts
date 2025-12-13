@@ -6,18 +6,19 @@ interface CoordinatesState {
 
     longitude: number
     latitude: number
-    setCoordinates: (lat: number, long: number) => void
+    setCoordinates: (long: number, lat: number) => void
+    
 }
 
 export const useStore = create<CoordinatesState>()(
   persist(
     (set) => ({
-      latitude: 0,
       longitude: 0,
-      setCoordinates: (lat, long) =>
+      latitude: 0,
+      setCoordinates: (long, lat) =>
         set(() => ({
-          latitude: lat,
-          longitude: long
+          longitude: long,
+          latitude: lat
         })),
     }),
     {

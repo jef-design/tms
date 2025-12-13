@@ -1,17 +1,19 @@
 import { useState } from "react"
-import MapDirection from "../components/MapDirection"
 import { useStore } from "../services/store"
+import { useNavigate } from "react-router-dom"
 
 const ListDeliveries = () => {
   const [long, setLong] = useState('')
   const [lat, setLat] = useState('')
+  const navigate = useNavigate()
+  const { setCoordinates } = useStore()
 
-  const { latitude, longitude, setCoordinates } = useStore()
-  console.log(long, lat)
   const storeCoordinateHandler = () => {
-    setCoordinates(longitude, latitude)
-    console.log('corr')
+    setCoordinates(Number(long), Number(lat))
+    navigate('/direction')
+    console.log('saved to store')
   }
+
   return (
     <div className="max-w-[570px] mx-auto mt-6">
       <div className="flex flex-col">
@@ -23,11 +25,11 @@ const ListDeliveries = () => {
         <input className="border rounded-sm" onChange={e => setLat(e.target.value)} value={lat} id="lat" type="text" />
       </div>
       <div>
-        <button onClick={() => storeCoordinateHandler()} className="bg-blue-500 text-white rounded-sm p-1.5 mt-2 cursor-pointer">Direction</button>
+        <button onClick={storeCoordinateHandler} className="bg-blue-500 text-white rounded-sm p-1.5 mt-2 cursor-pointer">Direction</button>
       </div>
-      <div>
+      {/* <div>
         <MapDirection />
-      </div>
+      </div> */}
     </div>
   )
 }
