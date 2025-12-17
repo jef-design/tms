@@ -39,7 +39,8 @@ import { useEffect, useState } from 'react';
   }, [])
 
   return (
-    <div className='mx-auto w-full'>
+   <>
+     <div className='mx-auto w-full'>
       <Map
       mapboxAccessToken="pk.eyJ1IjoiamVwcHAiLCJhIjoiY2xsMDc3d2ppMDRzYjNxbXlubDA3NzVibCJ9.AxgzM3fm0IkZR5WlQ_IOMg"
       initialViewState={{
@@ -58,6 +59,17 @@ import { useEffect, useState } from 'react';
       <Marker color='blue' longitude={userLocation?.longitude ?? 0} latitude={userLocation?.latitude ?? 0}></Marker>
       </Map>
     </div>
+    <div className='flex justify-center'>
+      <button
+      onClick={() => {
+    window.open(
+      `https://www.google.com/maps/dir/?api=1&destination=${longitude},${latitude}",
+      "_blank`
+    );
+  }}
+      className=' text-center rounded-md bg-mainbg hover mt-4 cursor-pointer w-34 py-2 px-6 text-white'>Start</button>
+    </div>
+   </>
   );
 }
 export default MapDirection

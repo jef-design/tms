@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+@layer base {
+  body {
+    @apply bg-secondary;
+  }
+}
+
+@theme {
+    --color-mainbg: #2c8dd6;
+  --color-secondary: hsl(220 14.3% 95.9%);
+  --color-primary: hsl(0 0% 100%);
+}
