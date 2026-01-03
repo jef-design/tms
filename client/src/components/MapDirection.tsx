@@ -38,6 +38,14 @@ const MapDirection = () => {
 
   }, [])
 
+  const openGoogleMaps = (lat: number, lng: number) => {
+
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+
+  window.location.href = url;
+  };
+  
+
   return (
     <>
       <div className='mx-auto w-full'>
@@ -60,15 +68,13 @@ const MapDirection = () => {
         </Map>
       </div>
       <div className='flex justify-center'>
-        <button
-          onClick={() =>
-            window.open(
-              "https://www.google.com/maps/dir/?api=1&destination=121.08460684,14.68503197&travelmode=driving",
-              "_blank"
-            )
-          }
-          className=' text-center rounded-md bg-mainbg hover mt-4 cursor-pointer w-34 py-2 px-6 text-white'>Start</button>
-      </div>
+        < button
+          className=' text-center rounded-md bg-mainbg hover mt-4 cursor-pointer w-34 py-2 px-6 text-white'
+          onClick={() => openGoogleMaps(latitude, longitude)}>
+          Start
+        </button>
+
+      </div >
     </>
   );
 }

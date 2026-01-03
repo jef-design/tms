@@ -96,7 +96,7 @@ const Orders = () => {
             {ordersData.map(order => (
               <tr
                 key={order.id}
-                className="border-b border-gray-800 hover:bg-[#262626] transition"
+                className="border-b border-gray-800 cursor-pointer transition"
               >
                 <td className="py-4 flex items-center gap-2">
                   🚚 <span>{order.id}</span>
