@@ -120,7 +120,7 @@ const Orders = () => {
 
                 <td className="py-4">{order.weight}</td>
                 <td className="py-4">{order.eta}</td>
-                <td className={`py-4 font-medium ${statusStyles[order?.status]}`}>
+                <td className={`py-4 font-medium`}>
                   {order.status}
                 </td>
               </tr>
