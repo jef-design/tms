@@ -43,11 +43,11 @@ const ordersData = [
   },
 ]
 
-const statusStyles = {
-  "In Transit": "text-yellow-400",
-  "Picked Up": "text-blue-400",
-  Delivered: "text-green-400",
-}
+// const statusStyles = {
+//   "In Transit": "text-yellow-400",
+//   "Picked Up": "text-blue-400",
+//   Delivered: "text-green-400",
+// }
 
 const tabs = ["All", "Pending", "Responded", "Assigned", "Completed"]
 
