@@ -32,7 +32,7 @@ const ordersData = [
     status: "Picked Up",
   },
   {
-    id: "#BC022341",
+    id: "#BC022342",
     customer: " VEGGIE BLISS STORE",
     type: "Store",
     from: "Bignay, Valenzuela",
@@ -46,7 +46,7 @@ const ordersData = [
     status: "Picked Up",
   },
   {
-    id: "#BC022341",
+    id: "#BC022343",
     customer: "INDAY STORE ",
     type: "Store",
     from: "Bignay, Valenzuela",
@@ -75,6 +75,31 @@ const Orders = () => {
   const { setCoordinates } = useStore()
   const [activeTab, setActiveTab] = useState("Assigned")
   const navigate = useNavigate()
+
+  const [statuses, setStatuses] = useState(
+    ordersData.reduce((acc, order) => {
+      acc[order.id] = order.status
+      return acc
+    }, {} as Record<string, string>)
+  )
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case "In Transit":
+        return "bg-yellow-100 text-yellow-700"
+      case "Picked Up":
+        return "bg-blue-100 text-blue-700"
+      case "Completed":
+        return "bg-green-100 text-green-700"
+      default:
+        return "bg-gray-100 text-gray-700"
+    }
+  }
+  const STATUS_OPTIONS = [
+    "In Transit",
+    "Picked Up",
+    "Completed",
+  ]
+
 
   const storeCoordinateHandler = (long: number, lat: number) => {
     console.log('test')
@@ -109,11 +134,12 @@ const Orders = () => {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
-          <thead>
+          {/* TABLE HEADER (Hidden on Mobile) */}
+          <thead className="hidden md:table-header-group">
             <tr className="text-gray-400 border-b border-gray-700">
               <th className="text-left py-3">Order ID</th>
               <th className="text-left py-3">Customer</th>
-              <th className="text-left py-3 ">Route</th>
+              <th className="text-left py-3">Route</th>
               <th className="text-left py-3">Weight</th>
               <th className="text-left py-3">ETA</th>
               <th className="text-left py-3">Status</th>
@@ -130,18 +156,38 @@ const Orders = () => {
                     order.coordinates.lat
                   )
                 }
-                className="border-b border-gray-800 cursor-pointer transition hover:bg-gray-100"
+                className="
+            block md:table-row
+            border border-gray-200 md:border-0
+            rounded-lg md:rounded-none
+            mb-4 md:mb-0
+            cursor-pointer
+            hover:bg-gray-100
+            p-4 md:p-0
+          "
               >
-                <td className="py-4 flex items-center gap-2">
-                   <span>{order.id}</span>
+                {/* Order ID */}
+                <td
+                  data-label="Order ID"
+                  className="block md:table-cell py-2 md:py-4 font-semibold"
+                >
+                  {order.id}
                 </td>
 
-                <td className="py-4">
+                {/* Customer */}
+                <td
+                  data-label="Customer"
+                  className="block md:table-cell py-2 md:py-4"
+                >
                   <p className="font-medium">{order.customer}</p>
                   <p className="text-xs text-gray-400">{order.type}</p>
                 </td>
 
-                <td className="py-4 whitespace-nowrap">
+                {/* Route */}
+                <td
+                  data-label="Route"
+                  className="block md:table-cell py-2 md:py-4"
+                >
                   <p className="flex items-center gap-2">
                     <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                     {order.from}
@@ -152,16 +198,57 @@ const Orders = () => {
                   </p>
                 </td>
 
-                <td className="py-4">{order.weight}</td>
-                <td className="py-4">{order.eta}</td>
-                <td className={`py-4 font-medium`}>
-                  {order.status}
+                {/* Weight */}
+                <td
+                  data-label="Weight"
+                  className="block md:table-cell py-2 md:py-4"
+                >
+                  {order.weight}
                 </td>
+
+                {/* ETA */}
+                <td
+                  data-label="ETA"
+                  className="block md:table-cell py-2 md:py-4"
+                >
+                  {order.eta}
+                </td>
+
+                {/* Status */}
+                <td
+                  data-label="Status"
+                  className="block md:table-cell py-2 md:py-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <select
+                    value={statuses[order.id]}
+                    onChange={(e) =>
+                      setStatuses(prev => ({
+                        ...prev,
+                        [order.id]: e.target.value,
+                      }))
+                    }
+                    className={`
+      w-full md:w-auto
+      rounded-md px-3 py-1.5 text-sm font-medium
+      focus:outline-none focus:ring-2 focus:ring-blue-500
+      ${getStatusStyle(statuses[order.id])}
+    `}
+                  >
+                    {STATUS_OPTIONS.map(status => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
     </div>
   )
 }
