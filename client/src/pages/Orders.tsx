@@ -1,45 +1,63 @@
 import { useState } from "react"
+import { useStore } from "../services/store"
+import { useNavigate } from "react-router-dom"
 
 const ordersData = [
   {
     id: "#AB045861",
-    customer: "TNA Groups",
-    type: "Electronics",
+    customer: "Marilyn Store",
+    type: "Store",
     from: "Bignay, Valenzuela",
-    to: "Quezon City",
+    to: "BLK 1 LOT 5 APOLLO CMP. ALIBANGBANG ST., BRGY. 179 AMPARO",
     weight: "1,200 kg",
     eta: "12 Sep, 2025",
+    coordinates: {
+      long: 121.08068945,
+      lat: 14.75457374,
+    },
     status: "In Transit",
   },
   {
     id: "#BC022341",
-    customer: "Gravitas LLC",
-    type: "Logistics",
+    customer: " GOLDHORN STORE ",
+    type: "Store",
     from: "Bignay, Valenzuela",
-    to: "Quezon City",
+    to: "BRGY. 179, Caloocan City",
     weight: "650 kg",
     eta: "14 Oct, 2025",
+    coordinates: {
+      long: 121.07640319,
+      lat: 14.74630339,
+    },
     status: "Picked Up",
   },
   {
-    id: "#AB045863",
-    customer: "BVI GROUP",
-    type: "Telecom",
+    id: "#BC022341",
+    customer: " VEGGIE BLISS STORE",
+    type: "Store",
     from: "Bignay, Valenzuela",
-    to: "Quezon City",
-    weight: "1,352 kg",
-    eta: "25 Oct, 2025",
-    status: "Delivered",
+    to: "FLORIDA BLANCA ST. PH 1 DELA COSTA HOMES, BRGY. 179",
+    weight: "650 kg",
+    eta: "14 Oct, 2025",
+    coordinates: {
+      long: 121.07538347,
+      lat: 14.74670967,
+    },
+    status: "Picked Up",
   },
   {
-    id: "#CA012341",
-    customer: "MEGAONE",
-    type: "Sports",
+    id: "#BC022341",
+    customer: "INDAY STORE ",
+    type: "Store",
     from: "Bignay, Valenzuela",
-    to: "Quezon City",
-    weight: "45 kg",
-    eta: "05 Oct, 2025",
-    status: "In Transit",
+    to: "24 MINDANAO ST., BRGY. PAYATAS B",
+    weight: "650 kg",
+    eta: "14 Oct, 2025",
+    coordinates: {
+      long: 121.06514561,
+      lat: 14.74227812,
+    },
+    status: "Picked Up",
   },
 ]
 
@@ -51,12 +69,22 @@ const ordersData = [
 
 const tabs = ["All", "Pending", "Responded", "Assigned", "Completed"]
 
+
 const Orders = () => {
+
+  const { setCoordinates } = useStore()
   const [activeTab, setActiveTab] = useState("Assigned")
+  const navigate = useNavigate()
+
+  const storeCoordinateHandler = (long: number, lat: number) => {
+    console.log('test')
+    setCoordinates(Number(long), Number(lat))
+    navigate("/direction")
+  }
 
   return (
-    <div className="max-w-6xl mx-auto mt-10 bg-white rounded-2xl p-6 text-gray-950">
-      
+    <div className="max-w-8xl mx-auto mt-10 bg-white rounded-2xl p-6 text-gray-950">
+
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">Orders</h2>
@@ -96,7 +124,13 @@ const Orders = () => {
             {ordersData.map(order => (
               <tr
                 key={order.id}
-                className="border-b border-gray-800 cursor-pointer transition"
+                onClick={() =>
+                  storeCoordinateHandler(
+                    order.coordinates.long,
+                    order.coordinates.lat
+                  )
+                }
+                className="border-b border-gray-800 cursor-pointer transition hover:bg-gray-100"
               >
                 <td className="py-4 flex items-center gap-2">
                   🚚 <span>{order.id}</span>
