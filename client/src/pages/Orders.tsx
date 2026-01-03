@@ -86,7 +86,7 @@ const Orders = () => {
     <div className="max-w-8xl mx-auto mt-10 bg-white rounded-2xl p-6 text-gray-950">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 overflow-x-scroll max-sm:flex-col max-sm:items-baseline">
         <h2 className="text-lg font-semibold">Orders</h2>
 
         <div className="flex items-center gap-2 bg-mainbg rounded-full p-1">
@@ -94,10 +94,10 @@ const Orders = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 text-sm rounded-full transition
+              className={`px-4 py-1.5 text-sm rounded-full cursor-pointer transition
                 ${activeTab === tab
                   ? "bg-[#e8e1c2] text-black"
-                  : "text-white hover:text-mainbg"}
+                  : "text-white hover:text-sky-300"}
               `}
             >
               {tab}
@@ -113,7 +113,7 @@ const Orders = () => {
             <tr className="text-gray-400 border-b border-gray-700">
               <th className="text-left py-3">Order ID</th>
               <th className="text-left py-3">Customer</th>
-              <th className="text-left py-3">Route</th>
+              <th className="text-left py-3 ">Route</th>
               <th className="text-left py-3">Weight</th>
               <th className="text-left py-3">ETA</th>
               <th className="text-left py-3">Status</th>
@@ -133,7 +133,7 @@ const Orders = () => {
                 className="border-b border-gray-800 cursor-pointer transition hover:bg-gray-100"
               >
                 <td className="py-4 flex items-center gap-2">
-                  🚚 <span>{order.id}</span>
+                   <span>{order.id}</span>
                 </td>
 
                 <td className="py-4">
@@ -141,13 +141,13 @@ const Orders = () => {
                   <p className="text-xs text-gray-400">{order.type}</p>
                 </td>
 
-                <td className="py-4">
+                <td className="py-4 whitespace-nowrap">
                   <p className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
                     {order.from}
                   </p>
                   <p className="flex items-center gap-2 text-gray-400">
-                    <span className="w-2 h-2 bg-gray-600 rounded-full"></span>
+                    <span className="w-2 h-2 bg-red-600 rounded-full"></span>
                     {order.to}
                   </p>
                 </td>

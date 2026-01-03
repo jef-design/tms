@@ -86,7 +86,7 @@ const ListDeliveries = () => {
       </div>
 
       {/* Coordinate Form */}
-      <div className="bg-white rounded-xl p-6 shadow-sm">
+      {/* <div className="bg-white rounded-xl p-6 shadow-sm">
         <div className="flex flex-col md:flex-row gap-4 items-end">
           <div className="flex flex-col gap-1 w-full">
             <label className="text-sm text-gray-600" htmlFor="long">
@@ -121,7 +121,7 @@ const ListDeliveries = () => {
             Get Direction
           </button>
         </div>
-      </div>
+      </div> */}
       <Orders/>
     </div>
   )
