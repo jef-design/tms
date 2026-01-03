@@ -1,6 +1,6 @@
-import { useState } from "react"
-import { useStore } from "../services/store"
-import { useNavigate } from "react-router-dom"
+// import { useState } from "react"
+// import { useStore } from "../services/store"
+// import { useNavigate } from "react-router-dom"
 import Orders from "./Orders"
 
 const stats = [
@@ -51,15 +51,15 @@ const stats = [
 ]
 
 const ListDeliveries = () => {
-  const [long, setLong] = useState("")
-  const [lat, setLat] = useState("")
-  const navigate = useNavigate()
-  const { setCoordinates } = useStore()
+  // const [long, setLong] = useState("")
+  // const [lat, setLat] = useState("")
+  // const navigate = useNavigate()
+  // const { setCoordinates } = useStore()
 
-  const storeCoordinateHandler = () => {
-    setCoordinates(Number(long), Number(lat))
-    navigate("/direction")
-  }
+  // const storeCoordinateHandler = () => {
+  //   setCoordinates(Number(long), Number(lat))
+  //   navigate("/direction")
+  // }
 
   return (
     <div className="max-w-[970px] mx-auto mt-8 space-y-6">
