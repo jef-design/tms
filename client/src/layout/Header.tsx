@@ -66,13 +66,13 @@ const Header = () => {
             </Link>
           </li>
           <li>
-            <Link to="/orders" onClick={() => setOpen(false)}>
-              Orders
+            <Link to="/customer/list" onClick={() => setOpen(false)}>
+              Customers
             </Link>
           </li>
           <li>
-            <Link to="/direction" onClick={() => setOpen(false)}>
-              Directions
+            <Link to="/customer/configuration" onClick={() => setOpen(false)}>
+              Customer Tagging
             </Link>
           </li>
         </ul>

@@ -1,12 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-require("dotenv/config");
-const config_1 = require("prisma/config");
+import "dotenv/config";
+import { defineConfig } from "prisma/config";
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
     throw new Error("DATABASE_URL is not defined");
 }
-exports.default = (0, config_1.defineConfig)({
+export default defineConfig({
     schema: "prisma/schema.prisma",
     migrations: {
         path: "prisma/migrations",
@@ -15,4 +13,3 @@ exports.default = (0, config_1.defineConfig)({
         url: DATABASE_URL,
     },
 });
-//# sourceMappingURL=prisma.config.js.map

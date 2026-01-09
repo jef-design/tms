@@ -3,7 +3,8 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import MapDirection from './components/MapDirection'
 import MainLayout from './pages/MainLayout'
 import Home from './pages/Home'
-import Orders from './pages/Orders'
+import CustomerTagging from './pages/CustomerTagging'
+import CustomersList from './pages/CustomersList'
 
 function App() {
   const router = createBrowserRouter([
@@ -16,12 +17,16 @@ function App() {
           element: <Home />
         },
         {
-          path: '/direction',
+          path: '/customer/info/:id',
           element: <MapDirection />,
         },
         {
-          path: '/orders',
-          element: <Orders />,
+          path: '/customer/list',
+          element: <CustomersList />,
+        },
+         {
+          path: '/customer/configuration',
+          element: <CustomerTagging />,
         }
       ]
     }

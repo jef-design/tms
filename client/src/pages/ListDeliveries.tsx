@@ -1,7 +1,7 @@
 // import { useState } from "react"
 // import { useStore } from "../services/store"
 // import { useNavigate } from "react-router-dom"
-import Orders from "./Orders"
+import Orders from "./CustomersList"
 
 const stats = [
   {
@@ -51,15 +51,6 @@ const stats = [
 ]
 
 const ListDeliveries = () => {
-  // const [long, setLong] = useState("")
-  // const [lat, setLat] = useState("")
-  // const navigate = useNavigate()
-  // const { setCoordinates } = useStore()
-
-  // const storeCoordinateHandler = () => {
-  //   setCoordinates(Number(long), Number(lat))
-  //   navigate("/direction")
-  // }
 
   return (
     <div className="max-w-[970px] mx-auto mt-8 space-y-6">
@@ -85,43 +76,6 @@ const ListDeliveries = () => {
         ))}
       </div>
 
-      {/* Coordinate Form */}
-      {/* <div className="bg-white rounded-xl p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row gap-4 items-end">
-          <div className="flex flex-col gap-1 w-full">
-            <label className="text-sm text-gray-600" htmlFor="long">
-              Longitude
-            </label>
-            <input
-              className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => setLong(e.target.value)}
-              value={long}
-              id="long"
-              type="text"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1 w-full">
-            <label className="text-sm text-gray-600" htmlFor="lat">
-              Latitude
-            </label>
-            <input
-              className="border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              onChange={(e) => setLat(e.target.value)}
-              value={lat}
-              id="lat"
-              type="text"
-            />
-          </div>
-
-          <button
-            onClick={storeCoordinateHandler}
-            className="bg-blue-600 hover:bg-blue-700 text-white rounded-md px-5 py-2 whitespace-nowrap transition"
-          >
-            Get Direction
-          </button>
-        </div>
-      </div> */}
       <Orders/>
     </div>
   )

@@ -7,8 +7,21 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
+  runtime  = "nodejs"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model Customer {
+  id            Int      @id @default(autoincrement())
+  salesman      String
+  customer_code String   @unique
+  customer_name String?
+  contact       String?
+  longitude     Float?
+  latitude      Float?
+  taggingStatus String  
+  createdAt     DateTime @default(now())
 }

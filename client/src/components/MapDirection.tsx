@@ -1,81 +1,110 @@
-import Map, { FullscreenControl, Marker } from 'react-map-gl/mapbox';
-// If using with mapbox-gl v1:
-// import Map from 'react-map-gl/mapbox-legacy';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { useStore } from '../services/store';
-import { useEffect, useState } from 'react';
+import Map, { FullscreenControl, Marker } from "react-map-gl/mapbox";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const MapDirection = () => {
-  const { longitude, latitude } = useStore()
-  const [userLocation, setUserLocation] = useState<{
-    longitude: number;
-    latitude: number;
-  } | any>(null);
+interface Customer {
+  id: number;
+  salesman: string;
+  customer_code: string;
+  customer_name: string | null;
+  contact: string | null;
+  longitude: number | null;
+  latitude: number | null;
+  taggingStatus: string;
+}
 
-  console.log(userLocation)
+const CustomerMap = () => {
+  const { id } = useParams();
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+console.log('c', customer)
+  // Get user location
   useEffect(() => {
-    // const response = fetch('https://ipapi.co/json')
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     console.log(data)
-    //     dispatch(storeUpdatedLocation({longitude: data?.longitude,latitude: data?.latitude}))
-    //     // dispatch(storePlaceLocation(`${data.country_capital},${data.country_name}`))
-    //   })
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+      },
+      (err) => console.error(err)
+    );
+  }, []);
 
-    const getCoordinates = () => {
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          const { longitude, latitude } = position.coords;
-          setUserLocation({ longitude, latitude });
-
-        },
-        error => {
-          console.error('Error getting coordinates:', error);
-        }
-      );
+  // Fetch customer data by ID
+  useEffect(() => {
+    const fetchCustomer = async () => {
+      try {
+        const res = await axios.get<Customer>(`http://localhost:5000/api/upload/customers/${id}`);
+        setCustomer(res.data);
+        console.log(res)
+        return res.data
+      } catch (err) {
+        console.error(err);
+      }
     };
-    getCoordinates();
-
-  }, [])
+    if (id) fetchCustomer();
+  }, [id]);
 
   const openGoogleMaps = (lat: number, lng: number) => {
-
-  const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-
-  window.location.href = url;
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`, "_blank");
   };
-  
+
+  if (!customer) return <div className="p-6 text-center">Loading customer info...</div>;
 
   return (
-    <>
-      <div className='mx-auto w-full'>
+    <div className="flex flex-col lg:flex-row gap-6 p-6">
+      {/* Map Section */}
+      <div className="flex-1 rounded-lg overflow-hidden shadow-lg">
         <Map
           mapboxAccessToken="pk.eyJ1IjoiamVwcHAiLCJhIjoiY2xsMDc3d2ppMDRzYjNxbXlubDA3NzVibCJ9.AxgzM3fm0IkZR5WlQ_IOMg"
           initialViewState={{
-            longitude: longitude,
-            latitude: latitude,
-            zoom: 16
+            longitude: customer.longitude || 0,
+            latitude: customer.latitude || 0,
+            zoom: 16,
           }}
-          //
-          style={{ width: "100%", height: "500px" }}
-          // mapStyle="mapbox://styles/jeppp/cll0i6qb7003z01r841kb8h1t"
+          style={{ width: "100%", height: "600px" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
-
         >
           <FullscreenControl />
-          <Marker color='red' longitude={longitude} latitude={latitude}></Marker>
-          <Marker color='blue' longitude={userLocation?.longitude ?? 0} latitude={userLocation?.latitude ?? 0}></Marker>
+          {customer.longitude && customer.latitude && (
+            <Marker color="red" longitude={customer.longitude} latitude={customer.latitude} />
+          )}
+          {userLocation && <Marker color="blue" longitude={userLocation.longitude} latitude={userLocation.latitude} />}
         </Map>
       </div>
-      <div className='flex justify-center'>
-        < button
-          className=' text-center rounded-md bg-mainbg hover mt-4 cursor-pointer w-34 py-2 px-6 text-white'
-          onClick={() => openGoogleMaps(latitude, longitude)}>
-          Start
-        </button>
 
-      </div >
-    </>
+      {/* Customer Info Section */}
+      <div className="flex-1">
+        <div className="bg-white shadow rounded-lg p-6 space-y-4">
+          <h2 className="text-2xl font-bold">{customer.customer_name || customer.customer_code}</h2>
+          <p>
+            <span className="font-semibold">Salesman:</span> {customer.salesman}
+          </p>
+          <p>
+            <span className="font-semibold">Code:</span> {customer.customer_code}
+          </p>
+          {customer.contact && (
+            <p>
+              <span className="font-semibold">Contact:</span> {customer.contact}
+            </p>
+          )}
+          <p>
+            <span className="font-semibold">Status:</span> {customer.taggingStatus}
+          </p>
+
+          {customer.latitude && customer.longitude && (
+            <button
+              onClick={() => openGoogleMaps(customer.latitude!, customer.longitude!)}
+              className="mt-4 bg-gray-800 cursor-pointer text-white px-4 py-2 rounded hover:bg-mainbg-dark transition"
+            >
+              Navigate to Customer
+            </button>
+          )}
+
+        </div>
+      </div>
+    </div>
   );
-}
-export default MapDirection
+};
+
+export default CustomerMap;

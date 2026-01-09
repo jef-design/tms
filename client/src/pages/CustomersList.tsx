@@ -1,65 +1,67 @@
 import { useState } from "react"
 import { useStore } from "../services/store"
 import { useNavigate } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query"
+import axios from "axios"
 
-const ordersData = [
-  {
-    id: "#AB045861",
-    customer: "Marilyn Store",
-    type: "Store",
-    from: "Bignay, Valenzuela",
-    to: "BLK 1 LOT 5 APOLLO CMP. ALIBANGBANG ST., BRGY. 179 AMPARO",
-    weight: "1,200 kg",
-    eta: "12 Sep, 2025",
-    coordinates: {
-      long: 121.08068945,
-      lat: 14.75457374,
-    },
-    status: "In Transit",
-  },
-  {
-    id: "#BC022341",
-    customer: " GOLDHORN STORE ",
-    type: "Store",
-    from: "Bignay, Valenzuela",
-    to: "BRGY. 179, Caloocan City",
-    weight: "650 kg",
-    eta: "14 Oct, 2025",
-    coordinates: {
-      long: 121.07640319,
-      lat: 14.74630339,
-    },
-    status: "Picked Up",
-  },
-  {
-    id: "#BC022342",
-    customer: " VEGGIE BLISS STORE",
-    type: "Store",
-    from: "Bignay, Valenzuela",
-    to: "FLORIDA BLANCA ST. PH 1 DELA COSTA HOMES, BRGY. 179",
-    weight: "650 kg",
-    eta: "14 Oct, 2025",
-    coordinates: {
-      long: 121.07538347,
-      lat: 14.74670967,
-    },
-    status: "Picked Up",
-  },
-  {
-    id: "#BC022343",
-    customer: "INDAY STORE ",
-    type: "Store",
-    from: "Bignay, Valenzuela",
-    to: "24 MINDANAO ST., BRGY. PAYATAS B",
-    weight: "650 kg",
-    eta: "14 Oct, 2025",
-    coordinates: {
-      long: 121.06514561,
-      lat: 14.74227812,
-    },
-    status: "Picked Up",
-  },
-]
+// const ordersData = [
+//   {
+//     id: "#AB045861",
+//     customer: "Marilyn Store",
+//     type: "Store",
+//     from: "Bignay, Valenzuela",
+//     to: "BLK 1 LOT 5 APOLLO CMP. ALIBANGBANG ST., BRGY. 179 AMPARO",
+//     weight: "1,200 kg",
+//     eta: "12 Sep, 2025",
+//     coordinates: {
+//       long: 121.08068945,
+//       lat: 14.75457374,
+//     },
+//     status: "In Transit",
+//   },
+//   {
+//     id: "#BC022341",
+//     customer: " GOLDHORN STORE ",
+//     type: "Store",
+//     from: "Bignay, Valenzuela",
+//     to: "BRGY. 179, Caloocan City",
+//     weight: "650 kg",
+//     eta: "14 Oct, 2025",
+//     coordinates: {
+//       long: 121.07640319,
+//       lat: 14.74630339,
+//     },
+//     status: "Picked Up",
+//   },
+//   {
+//     id: "#BC022342",
+//     customer: " VEGGIE BLISS STORE",
+//     type: "Store",
+//     from: "Bignay, Valenzuela",
+//     to: "FLORIDA BLANCA ST. PH 1 DELA COSTA HOMES, BRGY. 179",
+//     weight: "650 kg",
+//     eta: "14 Oct, 2025",
+//     coordinates: {
+//       long: 121.07538347,
+//       lat: 14.74670967,
+//     },
+//     status: "Picked Up",
+//   },
+//   {
+//     id: "#BC022343",
+//     customer: "INDAY STORE ",
+//     type: "Store",
+//     from: "Bignay, Valenzuela",
+//     to: "24 MINDANAO ST., BRGY. PAYATAS B",
+//     weight: "650 kg",
+//     eta: "14 Oct, 2025",
+//     coordinates: {
+//       long: 121.06514561,
+//       lat: 14.74227812,
+//     },
+//     status: "Picked Up",
+//   },
+// ]
 
 // const statusStyles = {
 //   "In Transit": "text-yellow-400",
@@ -70,17 +72,14 @@ const ordersData = [
 const tabs = ["All", "Pending", "Responded", "Assigned", "Completed"]
 
 
-const Orders = () => {
+const CustomersList = () => {
 
   const { setCoordinates } = useStore()
   const [activeTab, setActiveTab] = useState("Assigned")
   const navigate = useNavigate()
 
   const [statuses, setStatuses] = useState(
-    ordersData.reduce((acc, order) => {
-      acc[order.id] = order.status
-      return acc
-    }, {} as Record<string, string>)
+   
   )
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -99,16 +98,26 @@ const Orders = () => {
     "Picked Up",
     "Completed",
   ]
-
-
-  const storeCoordinateHandler = (long: number, lat: number) => {
-    console.log('test')
+  const {data: ordersData} = useQuery({
+    queryKey: ['getcustomers'],
+    queryFn: async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/upload/customers')
+        return response.data
+      } catch (error) {
+        
+      }
+    }
+  })
+console.log(ordersData)
+  const storeCoordinateHandler = (id: any,long: number, lat: number) => {
+    
     setCoordinates(Number(long), Number(lat))
-    navigate("/direction")
+    navigate(`/customer/info/${id}`)
   }
 
   return (
-    <div className="max-w-8xl mx-auto mt-10 bg-white rounded-2xl p-6 text-gray-950">
+    <div className="max-w-8xl mx-4 mt-10 bg-white rounded-2xl p-6 text-gray-950">
 
       {/* Header */}
       <div className="flex items-center justify-between mb-6 overflow-x-scroll max-sm:flex-col max-sm:items-baseline">
@@ -137,23 +146,25 @@ const Orders = () => {
           {/* TABLE HEADER (Hidden on Mobile) */}
           <thead className="hidden md:table-header-group">
             <tr className="text-gray-400 border-b border-gray-700">
-              <th className="text-left py-3">Order ID</th>
+              <th className="text-left py-3">Customer ID</th>
               <th className="text-left py-3">Customer</th>
-              <th className="text-left py-3">Route</th>
-              <th className="text-left py-3">Weight</th>
-              <th className="text-left py-3">ETA</th>
+              <th className="text-left py-3">Contact No.</th>
+              <th className="text-left py-3">Salesman</th>
+              <th className="text-left py-3">Longitude</th>
+              <th className="text-left py-3">Latitude</th>
               <th className="text-left py-3">Status</th>
             </tr>
           </thead>
 
           <tbody>
-            {ordersData.map(order => (
+            {ordersData?.customers?.map((order: any) => (
               <tr
-                key={order.id}
+                key={order.customer_code}
                 onClick={() =>
                   storeCoordinateHandler(
-                    order.coordinates.long,
-                    order.coordinates.lat
+                    order.customer_code,
+                    order.longitude,
+                    order.latitude
                   )
                 }
                 className="
@@ -171,7 +182,7 @@ const Orders = () => {
                   data-label="Order ID"
                   className="block md:table-cell py-2 md:py-4 font-semibold"
                 >
-                  {order.id}
+                  {order.customer_code}
                 </td>
 
                 {/* Customer */}
@@ -179,31 +190,36 @@ const Orders = () => {
                   data-label="Customer"
                   className="block md:table-cell py-2 md:py-4"
                 >
-                  <p className="font-medium">{order.customer}</p>
+                  <p className="font-medium">{order.customer_name}</p>
                   <p className="text-xs text-gray-400">{order.type}</p>
                 </td>
-
-                {/* Route */}
                 <td
-                  data-label="Route"
+                  data-label="Customer"
                   className="block md:table-cell py-2 md:py-4"
                 >
-                  <p className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                    {order.from}
-                  </p>
-                  <p className="flex items-center gap-2 text-gray-400">
-                    <span className="w-2 h-2 bg-red-600 rounded-full"></span>
-                    {order.to}
-                  </p>
+                  <p className="font-medium">{order.contact}</p>
+                  <p className="text-xs text-gray-400">{order.type}</p>
                 </td>
-
-                {/* Weight */}
                 <td
-                  data-label="Weight"
+                  data-label="Customer"
                   className="block md:table-cell py-2 md:py-4"
                 >
-                  {order.weight}
+                  <p className="font-medium">{order.salesman}</p>
+                  <p className="text-xs text-gray-400">{order.type}</p>
+                </td>
+                <td
+                  data-label="Customer"
+                  className="block md:table-cell py-2 md:py-4"
+                >
+                  <p className="font-medium">{order.longitude}</p>
+                  <p className="text-xs text-gray-400">{order.type}</p>
+                </td>
+                <td
+                  data-label="Customer"
+                  className="block md:table-cell py-2 md:py-4"
+                >
+                  <p className="font-medium">{order.latitude}</p>
+                  <p className="text-xs text-gray-400">{order.type}</p>
                 </td>
 
                 {/* ETA */}
@@ -211,7 +227,7 @@ const Orders = () => {
                   data-label="ETA"
                   className="block md:table-cell py-2 md:py-4"
                 >
-                  {order.eta}
+                  {order.taggingStatus}
                 </td>
 
                 {/* Status */}
@@ -220,7 +236,7 @@ const Orders = () => {
                   className="block md:table-cell py-2 md:py-4"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <select
+                  {/* <select
                     value={statuses[order.id]}
                     onChange={(e) =>
                       setStatuses(prev => ({
@@ -240,7 +256,7 @@ const Orders = () => {
                         {status}
                       </option>
                     ))}
-                  </select>
+                  </select> */}
                 </td>
 
               </tr>
@@ -253,4 +269,4 @@ const Orders = () => {
   )
 }
 
-export default Orders
+export default CustomersList
