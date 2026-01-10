@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import path from "path";
-import { uploadCustomers, getCustomers, getCustomerInfo } from "../controllers/uploadContollers.js";
+import { uploadCustomers, getCustomers, getCustomerInfo, exportCustomersToExcel } from "../controllers/uploadContollers.js";
 const router = express.Router();
 const storage = multer.diskStorage({
     destination: "uploads/",
@@ -14,6 +14,7 @@ const upload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
+router.get('/customers/export', exportCustomersToExcel);
 router.patch('/customers', upload.single("file"), uploadCustomers);
 router.get('/customers', getCustomers);
 router.get('/customers/:id', getCustomerInfo);

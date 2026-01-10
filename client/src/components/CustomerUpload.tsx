@@ -16,11 +16,11 @@ export default function CustomerUpload() {
       await axios.patch("http://localhost:5000/api/upload/customers", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert("Customers uploaded successfully");
+      alert("Customer Tagging Updated");
       setFile(null);
     } catch (err) {
       console.error(err);
-      alert("Upload failed");
+      alert("Uploading Customer Tagging failed");
     } finally {
       setLoading(false);
     }
@@ -28,10 +28,11 @@ export default function CustomerUpload() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
+      <div className="bg-white shadow-lg rounded-lg py-8 px-8 max-w-md w-full">
         <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           Update Customer Tagging
         </h2>
+        <p className="text-center text-sm pb-4">This will update customer tagging data</p>
 
         {/* File Input */}
         <label className="flex flex-col items-center px-4 py-6 bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-100 transition">
@@ -63,7 +64,7 @@ export default function CustomerUpload() {
         <button
           onClick={handleUpload}
           disabled={!file || loading}
-          className={`w-full mt-6 py-2 px-4 rounded-lg text-white font-semibold transition 
+          className={`w-full mt-6 py-2 cursor-pointer px-4 rounded-lg text-white font-semibold transition 
             ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
         >
           {loading ? "Uploading..." : "Upload"}
@@ -72,7 +73,7 @@ export default function CustomerUpload() {
         {/* Optional Info */}
         <p className="mt-4 text-sm text-gray-500 text-center">
           Make sure your Excel file has the correct headers: <br />
-          {/* <span className="font-medium">salesman, custcode, customer, contact, longitude, latitude, status</span> */}
+         <span className="font-medium">salesman, custcode, customer, contact, longitude, latitude, status</span>
         </p>
       </div>
     </div>

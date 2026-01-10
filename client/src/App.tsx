@@ -25,7 +25,7 @@ function App() {
           element: <CustomersList />,
         },
          {
-          path: '/customer/configuration',
+          path: '/customer/maintenance',
           element: <CustomerTagging />,
         }
       ]

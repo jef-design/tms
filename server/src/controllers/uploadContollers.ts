@@ -1,6 +1,8 @@
 import {Request, Response} from "express";
 import XLSX from "xlsx";
 import {prisma} from "../lib/prisma.js";
+import ExcelJS from "exceljs";
+
 
 export interface CustomerExcelRow {
     salesman: string;
@@ -97,4 +99,58 @@ export const getCustomerInfo = async (req: Request, res: Response) => {
     } catch (error) {
         
     }
+};
+
+
+export const exportCustomersToExcel = async (req: Request, res: Response) => {
+  
+  try {
+    const customer = await prisma.customer.findMany(
+        {
+            select: {
+                customer_code: true,
+                customer_name: true,
+                contact: true,
+                salesman: true,
+                longitude: true,
+                latitude: true,
+                taggingStatus: true
+            }
+        }
+    );
+    
+    if (!customer.length) {
+      return res.status(404).json({ message: "No data found" });
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Customers");
+
+    // Create columns dynamically
+    worksheet.columns = Object.keys(customer[0]).map((key) => ({
+      header: key,
+      key,
+      width: 20
+    }));
+
+    // Add rows
+    customer.forEach(cust => {
+      worksheet.addRow(cust);
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=users.xlsx"
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to export Excel" });
+  }
 };

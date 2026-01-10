@@ -1,8 +1,9 @@
 import Map, { FullscreenControl, Marker } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import axios from "axios";
+import { FaMapMarkedAlt, FaStoreAlt } from "react-icons/fa";
 
 interface Customer {
   id: number;
@@ -19,7 +20,7 @@ const CustomerMap = () => {
   const { id } = useParams();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-console.log('c', customer)
+
   // Get user location
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -54,7 +55,11 @@ console.log('c', customer)
   return (
     <div className="flex flex-col lg:flex-row gap-6 p-6">
       {/* Map Section */}
-      <div className="flex-1 rounded-lg overflow-hidden shadow-lg">
+      <div className="flex-1 rounded-lg overflow-hidden bg-white p-4 shadow-lg">
+        <div className="flex gap-2 mb-2">
+          <FaMapMarkedAlt className="text-xl text-blue-300" />
+          <p className="">MAP INFO</p>
+        </div>
         <Map
           mapboxAccessToken="pk.eyJ1IjoiamVwcHAiLCJhIjoiY2xsMDc3d2ppMDRzYjNxbXlubDA3NzVibCJ9.AxgzM3fm0IkZR5WlQ_IOMg"
           initialViewState={{
@@ -62,7 +67,7 @@ console.log('c', customer)
             latitude: customer.latitude || 0,
             zoom: 16,
           }}
-          style={{ width: "100%", height: "600px" }}
+          style={{ width: "100%", height: "500px" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
         >
           <FullscreenControl />
@@ -76,7 +81,7 @@ console.log('c', customer)
       {/* Customer Info Section */}
       <div className="flex-1">
         <div className="bg-white shadow rounded-lg p-6 space-y-4">
-          <h2 className="text-2xl font-bold">{customer.customer_name || customer.customer_code}</h2>
+          <h2 className="text-2xl font-bold flex gap-4 items-center"><FaStoreAlt className="text-blue-300" /> {customer.customer_name || customer.customer_code}</h2>
           <p>
             <span className="font-semibold">Salesman:</span> {customer.salesman}
           </p>
