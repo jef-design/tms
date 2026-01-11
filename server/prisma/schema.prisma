@@ -22,6 +22,7 @@ model Customer {
   contact       String?
   longitude     Float?
   latitude      Float?
-  taggingStatus String  
+  taggingStatus String
+  remarks       String?
   createdAt     DateTime @default(now())
 }

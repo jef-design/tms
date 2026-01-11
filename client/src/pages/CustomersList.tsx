@@ -1,143 +1,211 @@
-import { useEffect, useState, type SyntheticEvent } from "react"
-import { useStore } from "../services/store"
-import { useNavigate, useSearchParams } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
-import axios from "axios"
-import { RiFileExcel2Line } from "react-icons/ri"
-import { Oval } from 'react-loader-spinner'
+import {useEffect, useState} from "react";
+import {useStore} from "../services/store";
+import {useNavigate, useSearchParams} from "react-router-dom";
+import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
+import {RiFileExcel2Line} from "react-icons/ri";
+import {useDebounce} from "../hooks/useDebounce";
+import {axiosInstance} from "../services/axiosInstance";
+import CustomerTaggedStatus from "../components/CustomerTaggedStatus";
+import Pagination from "../layout/Pagination";
+import Loading from "../components/Loading";
+import type {AxiosError} from "axios";
+import { toast, Toaster } from "sonner";
 
-const tabs = ["All", "Pending", "Responded", "Assigned", "Completed"]
+ type SelectedRemark = {
+        customer_code: string;
+        remarks: string;
+    } | null;
 
 const CustomersList = () => {
+    const queryClient = useQueryClient()
+    const {setCoordinates} = useStore();
+    const navigate = useNavigate();
+    const [page, setPage] = useState(1);
+   
 
-  const { setCoordinates } = useStore()
-  const [activeTab, setActiveTab] = useState("Assigned")
-  const navigate = useNavigate()
-  
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [search, setSearch] = useState<string>(
-    searchParams.get("query") || ""
-  );
+    const [selectedRemark, setSelectedRemark] = useState<SelectedRemark>(null);
 
-  // Sync input -> URL
-  useEffect(() => {
-    if (search) {
-      setSearchParams({ query: search });
-    } else {
-      setSearchParams({});
-    }
-  }, [search, setSearchParams]);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [search, setSearch] = useState<string>(searchParams.get("query") || "");
 
-  const { data: ordersData } = useQuery({
-    queryKey: ['getcustomers'],
+    const debouncedSearch = useDebounce(search);
+
+    // const {data: searchData} = useQuery({
+    //     queryKey: ["employees", debouncedSearch],
+    //     queryFn: async () => {
+    //         const res = await axiosInstance.get("/api/customer/search", {
+    //             params: {search},
+    //         });
+    //         return res.data;
+    //     },
+    // });
+    //  const {data: customerFilteredData} = useQuery({
+    //     queryKey: ["getlists", page],
+    //     queryFn: () => axiosInstance.get(`/api/customer/filter?page=${page}`).then((res) => res.data),
+    // });
+    const { data: customerFilteredData, isLoading } = useQuery({
+    queryKey: ["customers", debouncedSearch, page],
     queryFn: async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/upload/customers')
-        return response.data
-      } catch (error) {
+      const res = await axiosInstance.get("/api/customer/filter", {
+        params: {
+          page,
+          search: debouncedSearch || undefined, // send search only if not empty
+        },
+      });
+      return res.data;
+    },// keeps previous page data while loading next page
+  });
+    // Sync input -> URL
+    useEffect(() => {
+        if (search) {
+            setSearchParams({query: search});
+        } else {
+            setSearchParams({});
+        }
+    }, [search, setSearchParams]);
 
-      }
-    }
-  })
-  console.log(ordersData)
-  const storeCoordinateHandler = (id: any, long: number, lat: number) => {
+    const storeCoordinateHandler = (id: any, long: number, lat: number) => {
+        setCoordinates(Number(long), Number(lat));
+        navigate(`/customer/info/${id}`);
+    };
+    //search customer handler
+    const searchCustomer = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+    };
+    // const downloadExcel = async () => {
+    //     const response = await axiosInstance.get("/api/upload/customers/export", {
+    //         responseType: "blob",
+    //     });
 
-    setCoordinates(Number(long), Number(lat))
-    navigate(`/customer/info/${id}`)
-  }
-  //search customer handler
-  const searchCustomer = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value)
-  }
-  const downloadExcel = async () => {
-    const response = await axios.get(
-      "http://localhost:5000/api/upload/customers/export",
-      {
-        responseType: "blob"
-      }
-    );
+    //     const url = window.URL.createObjectURL(response.data);
+    //     const link = document.createElement("a");
 
-    const url = window.URL.createObjectURL(response.data);
-    const link = document.createElement("a");
+    //     link.href = url;
+    //     link.download = "customer.xlsx";
+    //     link.click();
 
-    link.href = url;
-    link.download = "customer.xlsx";
-    link.click();
+    //     window.URL.revokeObjectURL(url);
+    // };
 
-    window.URL.revokeObjectURL(url);
-  };
+    // PAGINATION HANDLING
 
-  return (
-    <div className="max-w-8xl mx-4 mt-10 bg-white rounded-2xl p-6 text-gray-950">
+    const useDownloadExcel = () => {
+        return useMutation<Blob, AxiosError>({
+            mutationKey: ["downloadCustomersExcel"],
+            mutationFn: async () => {
+                const response = await axiosInstance.get("/api/upload/customers/export", {
+                    responseType: "blob",
+                });
+                return response.data;
+            },
+            onError: (error) => {
+                console.error("Download failed:", error.message);
+                toast.success("Failed to download Excel. Please try again.");
+            },
+            onSuccess: (data) => {
+                const url = window.URL.createObjectURL(data);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "customer.xlsx";
+                link.click();
+                window.URL.revokeObjectURL(url);
+                toast.success("Customer tagging exported")
+            },
+        });
+    };
+    const downloadMutation = useDownloadExcel();
+    
+    const pageHandler = (page: number) => {
+        setPage(page);
+    };
 
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 overflow-x-scroll max-sm:flex-col max-sm:items-baseline">
-        <h2 className="text-lg font-semibold">Customers</h2>
-        <div>
-          <button onClick={downloadExcel} className="bg-green-400 flex cursor-pointer items-center gap-1 text-xs text-white p-2 rounded-sm">
-            <RiFileExcel2Line className="text-base" />
-            EXPORT EXCEL
-            {/* <Oval
-              height={20}
-              width={20}
-              color="green"
-              ariaLabel="audio-loading"
-              wrapperStyle={{}}
-              wrapperClass=""
-            /> */}
-          </button>
-        </div>
-      </div>
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2 bg-gray-900 rounded-full p-1">
-          {tabs.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-1.5 text-sm rounded-full cursor-pointer transition
-                ${activeTab === tab
-                  ? "bg-[#e8e1c2] text-black"
-                  : "text-white hover:text-sky-300"}
-              `}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-        <div className="">
-          <input
-            onChange={searchCustomer}
-            className="border p-2 rounded-sm w-[16rem]" type="text" placeholder="Search Customer" />
-        </div>
-      </div>
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          {/* TABLE HEADER (Hidden on Mobile) */}
-          <thead className="hidden md:table-header-group">
-            <tr className="text-gray-400 border-b border-gray-700">
-              <th className="text-left py-3">Customer ID</th>
-              <th className="text-left py-3">Customer</th>
-              <th className="text-left py-3">Contact No.</th>
-              <th className="text-left py-3">Salesman</th>
-              <th className="text-left py-3">Longitude</th>
-              <th className="text-left py-3">Latitude</th>
-              <th className="text-left py-3">Status</th>
-            </tr>
-          </thead>
+    const {mutate: remarkMutation, isPending} = useMutation({
+        mutationKey: ["addRemarks"],
+        mutationFn: async (payload: {customer_code: string; remarks: string}) => {
+            const res = await axiosInstance.patch("/api/customer/remarks", payload);
+            return res.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["getlists"] })
+        }
+    });
+    
+    const handleRemarkChange = (customerId: string, remark: string) => {
+        const payload = {customer_code: customerId, remarks: remark};
 
-          <tbody>
-            {ordersData?.customers?.map((order: any) => (
-              <tr
-                key={order.customer_code}
-                onClick={() =>
-                  storeCoordinateHandler(
-                    order.customer_code,
-                    order.longitude,
-                    order.latitude
-                  )
-                }
-                className="
+        // update UI immediately
+        setSelectedRemark(payload);
+
+        // save to backend
+        remarkMutation(payload);
+    };
+
+    return (
+        <div className='mt-6 mx-6 bg-white rounded-2xl p-6 text-gray-950'>
+            {(isPending || downloadMutation.isPending || isLoading) && (<Loading message={downloadMutation.isPending ? `Exporting Customers data...` : `Please wait...`} />)}
+         <Toaster 
+         richColors
+         position="top-center"
+         />
+            <div className='flex items-center justify-between mb-6  max-sm:items-baseline'>
+                <div className=''>
+                    <div className='text-lg font-semibold'>Customers</div>
+                    <div>
+                        <span className='text-gray-500'>Total </span>
+                        {customerFilteredData?.totalCustomer}
+                    </div>
+                </div>
+                <div>
+                    <button
+                        onClick={() => downloadMutation.mutate()}
+                        className='bg-green-400 flex cursor-pointer items-center gap-1 text-xs text-white p-2 rounded-sm'
+                    >
+                        <RiFileExcel2Line className='text-base' />
+                        EXPORT EXCEL
+                    </button>
+                </div>
+            </div>
+            <div className='flex items-center justify-between gap-4'>
+                <div className=''>
+                    <input
+                    value={search}
+                        onChange={searchCustomer}
+                        className='border p-2 text-xs rounded-sm w-[18rem]'
+                        type='text'
+                        placeholder='Search Customer by CustCode, Name, Salesman'
+                    />
+                </div>
+            </div>
+            {/* Table */}
+            <div className='overflow-x-scroll mt-2'>
+                {customerFilteredData?.list?.length === 0 ? (
+                    <div className="py-2 flex justify-center">
+                        <p>No Results found.</p>
+                    </div>
+                ): (
+                    <table className='w-full text-sm'>
+                    {/* TABLE HEADER (Hidden on Mobile) */}
+                    <thead className='hidden md:table-header-group'>
+                        <tr className='text-gray-400 border-b border-gray-700'>
+                            <th className='text-left py-3'>Customer ID</th>
+                            <th className='text-left py-3'>Customer</th>
+                            <th className='text-left py-3'>Contact No.</th>
+                            <th className='text-left py-3'>Salesman</th>
+                            <th className='text-left py-3'>Longitude</th>
+                            <th className='text-left py-3'>Latitude</th>
+                            <th className='text-left py-3'>Tagged Status</th>
+                            <th className='text-left py-3'>Remarks</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {customerFilteredData?.list?.map((order: any) => (
+                            <tr
+                                key={order.customer_code}
+                                onClick={() =>
+                                    storeCoordinateHandler(order.customer_code, order.longitude, order.latitude)
+                                }
+                                className='
             block md:table-row
             border border-gray-200 md:border-0
             rounded-lg md:rounded-none
@@ -145,98 +213,79 @@ const CustomersList = () => {
             cursor-pointer
             hover:bg-gray-100
             p-4 md:p-0
-          "
-              >
-                {/* Order ID */}
-                <td
-                  data-label="Order ID"
-                  className="block md:table-cell py-2 md:py-4 font-semibold"
-                >
-                  {order.customer_code}
-                </td>
+          '
+                            >
+                                {/* Order ID */}
+                                <td data-label='Order ID' className='block md:table-cell py-2 md:py-3 font-semibold'>
+                                    {order.customer_code}
+                                </td>
 
-                {/* Customer */}
-                <td
-                  data-label="Customer"
-                  className="block md:table-cell py-2 md:py-4"
-                >
-                  <p className="font-medium">{order.customer_name}</p>
-                  <p className="text-xs text-gray-400">{order.type}</p>
-                </td>
-                <td
-                  data-label="Customer"
-                  className="block md:table-cell py-2 md:py-4"
-                >
-                  <p className="font-medium">{order.contact}</p>
-                  <p className="text-xs text-gray-400">{order.type}</p>
-                </td>
-                <td
-                  data-label="Customer"
-                  className="block md:table-cell py-2 md:py-4"
-                >
-                  <p className="font-medium">{order.salesman}</p>
-                  <p className="text-xs text-gray-400">{order.type}</p>
-                </td>
-                <td
-                  data-label="Customer"
-                  className="block md:table-cell py-2 md:py-4"
-                >
-                  <p className="font-medium">{order.longitude}</p>
-                  <p className="text-xs text-gray-400">{order.type}</p>
-                </td>
-                <td
-                  data-label="Customer"
-                  className="block md:table-cell py-2 md:py-4"
-                >
-                  <p className="font-medium">{order.latitude}</p>
-                  <p className="text-xs text-gray-400">{order.type}</p>
-                </td>
+                                {/* Customer */}
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.customer_name}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.contact}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.salesman}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.longitude}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.latitude}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
 
-                {/* ETA */}
-                <td
-                  data-label="ETA"
-                  className="block md:table-cell py-2 md:py-4"
-                >
-                  {order.taggingStatus}
-                </td>
+                                {/* ETA */}
+                                <td data-label='ETA' className='block md:table-cell py-2 md:py-2'>
+                                    <CustomerTaggedStatus status={order.taggingStatus} />
+                                </td>
 
-                {/* Status */}
-                <td
-                  data-label="Status"
-                  className="block md:table-cell py-2 md:py-4"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* <select
-                    value={statuses[order.id]}
-                    onChange={(e) =>
-                      setStatuses(prev => ({
-                        ...prev,
-                        [order.id]: e.target.value,
-                      }))
-                    }
-                    className={`
-      w-full md:w-auto
-      rounded-md px-3 py-1.5 text-sm font-medium
-      focus:outline-none focus:ring-2 focus:ring-blue-500
-      ${getStatusStyle(statuses[order.id])}
-    `}
-                  >
-                    {STATUS_OPTIONS.map(status => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select> */}
-                </td>
+                                {/* Status */}
+                                <td
+                                    data-label='Remarks'
+                                    className='block md:table-cell py-2 md:py-2'
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <select
+                                        value={
+                                            selectedRemark?.customer_code === order.customer_code
+                                                ? selectedRemark?.remarks
+                                                : order.remarks ?? ""
+                                        }
+                                        onChange={(e) => handleRemarkChange(order.customer_code, e.target.value)}
+                                        className='text-xs px-2 py-1 rounded border'
+                                    >
+                                        <option value='' disabled>
+                                            Select Remark
+                                        </option>
+                                        <option value='ACCURATE'>ACCURATE</option>
+                                        <option value='WRONG_TAGGING'>WRONG TAGGING</option>
+                                        <option value='CLOSED'>CLOSED / NO LONGER OPERATING</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+                )}
+                {customerFilteredData?.list?.length ? (
+                    <Pagination
+                    pageHandler={pageHandler}
+                    totalPages={customerFilteredData?.totalPages}
+                    currentPage={customerFilteredData?.currentPage}
+                    totalCustomer={customerFilteredData?.totalCustomer}
+                />
+                ) : ''}
+            </div>
+        </div>
+    );
+};
 
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-    </div>
-  )
-}
-
-export default CustomersList
+export default CustomersList;

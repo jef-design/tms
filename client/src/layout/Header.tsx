@@ -1,17 +1,44 @@
-import { Link } from "react-router-dom"
-import { MdMenu } from "react-icons/md"
-import { MdAccountCircle } from "react-icons/md";
-import { useState } from "react"
-import TransFlowLogo from "../components/TransFlowLogo";
+import { Link, useNavigate } from "react-router-dom"
+import { MdMenu, MdAccountCircle } from "react-icons/md"
+import { useEffect, useRef, useState } from "react"
+import TransFlowLogo from "../components/TransFlowLogo"
 
 const Header = () => {
   const [open, setOpen] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
+
+  // close dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setAccountOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [])
+
+  const handleLogout = () => {
+    setAccountOpen(false)
+
+    // TODO: replace with real logout logic
+    // localStorage.clear()
+    // signOut()
+
+    navigate("/login")
+  }
 
   return (
     <>
       {/* HEADER */}
-      <header className="bg-gray-800 px-4 py-3 flex items-center justify-between">
-        {/* Menu Button (Mobile) */}
+      <header className="bg-gray-800 px-4 py-3 flex items-center justify-between relative">
+        {/* Left */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setOpen(true)}
@@ -19,17 +46,40 @@ const Header = () => {
           >
             <MdMenu />
           </button>
-          <h1 className="font-bold text-lg text-white cursor-pointer">
-            <Link to="/" onClick={() => setOpen(false)}>
-              <TransFlowLogo/>
-            </Link>
-          </h1>
-        </div>
-        <div className="text-white text-2xl">
-          <MdAccountCircle />
+
+          <Link to="/" onClick={() => setOpen(false)}>
+            <TransFlowLogo />
+          </Link>
         </div>
 
+        {/* Right - Account */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setAccountOpen((prev) => !prev)}
+            className="text-white text-2xl cursor-pointer"
+          >
+            <MdAccountCircle />
+          </button>
 
+          {accountOpen && (
+            <div className="absolute right-0 mt-2 w-40 rounded-xl bg-white shadow-lg border z-50">
+              <Link
+                to="/account"
+                onClick={() => setAccountOpen(false)}
+                className="block px-4 py-2 text-sm hover:bg-gray-100 rounded-t-xl"
+              >
+                Account
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-b-xl"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* OVERLAY */}
@@ -49,21 +99,18 @@ const Header = () => {
         `}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b">
-          <TransFlowLogo/>
+          <TransFlowLogo />
           <button
-            onClick={() => setOpen(true)}
-            className="text-white text-2xl md:hidden"
+            onClick={() => setOpen(false)}
+            className="text-2xl md:hidden"
           >
             <MdMenu />
           </button>
-
         </div>
 
         <ul className="flex flex-col p-4 gap-4">
           <li>
-            <Link to="/" onClick={() => setOpen(false)}>
-              Home
-            </Link>
+            <Link to="/" onClick={() => setOpen(false)}>Home</Link>
           </li>
           <li>
             <Link to="/customer/list" onClick={() => setOpen(false)}>
@@ -76,7 +123,7 @@ const Header = () => {
             </Link>
           </li>
           <li>
-            <Link to="/" onClick={() => setOpen(false)}>
+            <Link to="/account" onClick={() => setOpen(false)}>
               Account
             </Link>
           </li>

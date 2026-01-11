@@ -1,31 +1,55 @@
 import XLSX from "xlsx";
 import { prisma } from "../lib/prisma.js";
 import ExcelJS from "exceljs";
+const HEADER_MAP = {
+    salesman: "salesman",
+    custcode: "custcode",
+    customer: "customer",
+    contact_no: "contact",
+    longitude: "longitude",
+    latitude: "latitude",
+    tagging_completed: "status",
+};
+function normalizeRow(row) {
+    const normalized = {};
+    Object.keys(row).forEach((key) => {
+        const cleanKey = key
+            .toLowerCase()
+            .replace(/\./g, "") // remove dots
+            .trim()
+            .replace(/\s+/g, "_"); // spaces → underscore
+        const mappedKey = HEADER_MAP[cleanKey];
+        if (mappedKey) {
+            normalized[mappedKey] = row[key];
+        }
+    });
+    return normalized;
+}
 export const uploadCustomers = async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: "File is required" });
         }
+        // Read Excel file
         const workbook = XLSX.readFile(req.file.path);
-        const sheetName = workbook.SheetNames[0];
-        const sheet = workbook.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json(sheet, {
-            defval: null, // avoids undefined values
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rawRows = XLSX.utils.sheet_to_json(sheet, {
+            defval: null,
         });
-        if (!rows.length) {
+        if (!rawRows.length) {
             return res.status(400).json({ message: "Excel file is empty" });
         }
+        // Normalize and map rows
+        const rows = rawRows.map(normalizeRow);
         const customers = rows.map((row, index) => {
-            const salesman = row.salesman;
-            const custcode = row.custcode;
-            const status = row.status;
+            const { salesman, custcode, status } = row;
             const isEmpty = (v) => v === null || v === undefined || String(v).trim() === "";
             if (isEmpty(salesman) || isEmpty(custcode) || isEmpty(status)) {
-                throw new Error(`Invalid Excel format at row ${index + 2}: salesman, custcode, status are required`);
+                throw new Error(`Invalid Excel format at row ${index + 2}: SALESMAN, CUSTCODE, TAGGING COMPLETED are required`);
             }
             return {
                 salesman: String(salesman).trim(),
-                customer_code: String(custcode).trim(), // 🔥 FIX
+                customer_code: String(custcode).trim(),
                 customer_name: row.customer ? String(row.customer).trim() : null,
                 contact: row.contact ? String(row.contact).trim() : null,
                 longitude: row.longitude ? Number(row.longitude) : null,
@@ -33,36 +57,30 @@ export const uploadCustomers = async (req, res) => {
                 taggingStatus: String(status).trim(),
             };
         });
-        await prisma.customer.createMany({
-            data: customers,
-            skipDuplicates: true, // skips duplicate customer_code
-        });
-        res.status(201).json({
+        // Upsert customers (insert or update if exists)
+        await Promise.all(customers.map((customer) => prisma.customer.upsert({
+            where: { customer_code: customer.customer_code }, // must be unique in your model
+            update: {
+                salesman: customer.salesman,
+                customer_name: customer.customer_name,
+                contact: customer.contact,
+                longitude: customer.longitude,
+                latitude: customer.latitude,
+                taggingStatus: customer.taggingStatus,
+            },
+            create: customer,
+        })));
+        return res.status(201).json({
             success: true,
-            inserted: customers.length,
+            message: `${customers.length} customers uploaded/updated successfully`,
         });
     }
     catch (error) {
         console.error(error);
-        res.status(500).json({
+        return res.status(500).json({
             message: error.message || "Failed to upload customers",
         });
     }
-};
-export const getCustomers = async (req, res) => {
-    try {
-        const customers = await prisma.customer.findMany({
-            take: 20,
-            orderBy: {
-                createdAt: "desc",
-            },
-        });
-        res.status(200).json({
-            message: "success get customer",
-            customers,
-        });
-    }
-    catch (error) { }
 };
 export const getCustomerInfo = async (req, res) => {
     const { id } = req.params;
@@ -77,39 +95,56 @@ export const getCustomerInfo = async (req, res) => {
             return res.status(404).json({ message: "Customer not found" });
         res.json(customer);
     }
-    catch (error) {
-    }
+    catch (error) { }
 };
+const EXPORT_COLUMNS = [
+    { header: "SALESMAN", key: "salesman", width: 20 },
+    { header: "CUSTCODE", key: "customer_code", width: 20 },
+    { header: "CUSTOMER", key: "customer_name", width: 30 },
+    { header: "CONTACT NO.", key: "contact", width: 20 },
+    { header: "LONGITUDE", key: "longitude", width: 15 },
+    { header: "LATITUDE", key: "latitude", width: 15 },
+    { header: "TAGGING COMPLETED", key: "taggingStatus", width: 25 },
+];
 export const exportCustomersToExcel = async (req, res) => {
     try {
-        const customer = await prisma.customer.findMany({
+        const customers = await prisma.customer.findMany({
             select: {
+                salesman: true,
                 customer_code: true,
                 customer_name: true,
                 contact: true,
-                salesman: true,
                 longitude: true,
                 latitude: true,
-                taggingStatus: true
-            }
+                taggingStatus: true,
+            },
         });
-        if (!customer.length) {
+        if (!customers.length) {
             return res.status(404).json({ message: "No data found" });
         }
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Customers");
-        // Create columns dynamically
-        worksheet.columns = Object.keys(customer[0]).map((key) => ({
-            header: key,
-            key,
-            width: 20
-        }));
-        // Add rows
-        customer.forEach(cust => {
-            worksheet.addRow(cust);
+        worksheet.columns = EXPORT_COLUMNS;
+        customers.forEach((cust) => worksheet.addRow(cust));
+        // 🔥 STYLE HEADER
+        const headerRow = worksheet.getRow(1);
+        headerRow.font = { bold: true };
+        headerRow.alignment = { vertical: "middle", horizontal: "center" };
+        headerRow.eachCell((cell) => {
+            cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFEFEFEF" },
+            };
+            cell.border = {
+                top: { style: "thin" },
+                left: { style: "thin" },
+                bottom: { style: "thin" },
+                right: { style: "thin" },
+            };
         });
         res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.setHeader("Content-Disposition", "attachment; filename=users.xlsx");
+        res.setHeader("Content-Disposition", "attachment; filename=customers.xlsx");
         await workbook.xlsx.write(res);
         res.end();
     }
