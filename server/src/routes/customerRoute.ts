@@ -1,5 +1,5 @@
-import express,{ Request, Response } from "express";
-import { filterCustomerList, getCustomers, searchCustomers, updateCustomerRemarks } from "../controllers/customerContollers.js";
+import express from "express";
+import { getCustomers, searchCustomers, updateCustomerRemarks } from "../controllers/customerContollers.js";
 
 const router = express.Router();
 

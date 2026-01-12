@@ -26,3 +26,32 @@ model Customer {
   remarks       String?
   createdAt     DateTime @default(now())
 }
+
+enum Role {
+  SUPER_ADMIN
+  COMPANY_ADMIN
+  USER
+}
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  users     User[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  username  String
+  password  String
+  role      Role     @default(USER)
+
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([username, companyId])
+}
