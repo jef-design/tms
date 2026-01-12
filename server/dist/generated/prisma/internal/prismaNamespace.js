@@ -87,6 +87,7 @@ export const CustomerScalarFieldEnum = {
     longitude: 'longitude',
     latitude: 'latitude',
     taggingStatus: 'taggingStatus',
+    remarks: 'remarks',
     createdAt: 'createdAt'
 };
 export const SortOrder = {

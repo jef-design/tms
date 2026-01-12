@@ -1,12 +1,24 @@
 // import { useState } from "react"
 // import { useStore } from "../services/store"
 // import { useNavigate } from "react-router-dom"
+import { useQuery } from "@tanstack/react-query";
 import Orders from "./CustomersList"
+import { axiosInstance } from "../services/axiosInstance";
 
-const stats = [
+
+
+const ListDeliveries = () => {
+  const { data: customerFilteredData } = useQuery({
+    queryKey: ["customers"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/api/customer/filter");
+      return res.data;
+    }
+  });
+  const stats = [
   {
     title: "Active Vehicles",
-    value: "20",
+    value: "0",
     bg: "bg-indigo-50",
     iconBg: "bg-indigo-100",
     icon: (
@@ -27,8 +39,8 @@ const stats = [
     ),
   },
   {
-    title: "On-Time Rate",
-    value: "80.4%",
+    title: "Total Customer",
+    value: "9000",
     bg: "bg-sky-50",
     iconBg: "bg-sky-100",
     icon: (
@@ -49,9 +61,7 @@ const stats = [
     ),
   },
 ]
-
-const ListDeliveries = () => {
-
+  
   return (
     <div className="max-w-[1200px] mx-auto mt-8 space-y-6">
       

@@ -8,7 +8,7 @@ dotenv.config()
 const PORT = process.env.PORT
 const app = express()
 app.use(cors({
-     origin: ['http://localhost:5173','https://tms-eight88-beta.vercel.app'],
+     origin: ['http://localhost:5173','https://tms-eight88-beta.vercel.app','https://transflow.rgsoimcc.xyz'],
      credentials: true
 }))
 app.use(express.json());
