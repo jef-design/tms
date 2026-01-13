@@ -1,6 +1,12 @@
 import bcrypt from "bcrypt";
 import { prisma } from "../lib/prisma.js";
+import { validationResult } from "express-validator";
 export const loginUser = async (req, res) => {
+    console.log(req.body);
+    const resError = validationResult(req);
+    if (!resError.isEmpty()) {
+        return res.status(400).json({ messageError: resError.array() });
+    }
     try {
         const { username, password, company } = req.body;
         if (!username || !password || !company) {
@@ -25,13 +31,13 @@ export const loginUser = async (req, res) => {
             },
         });
         if (!user) {
-            return res.status(401).json({ message: "Invalid credentials user" });
+            return res.status(401).json({ message: "Invalid credentials" });
         }
         // 3. Compare password
         // const isPasswordValid = await bcrypt.compare(password, user.password);
         const isPasswordValid = password === user?.password;
         if (!isPasswordValid) {
-            return res.status(401).json({ message: "Invalid credentials pass" });
+            return res.status(401).json({ message: "Wrong username or password" });
         }
         return res.status(200).json({
             message: "Login successful",
@@ -48,14 +54,12 @@ export const loginUser = async (req, res) => {
     }
 };
 export const registerUser = async (req, res) => {
+    const resError = validationResult(req);
+    if (!resError.isEmpty()) {
+        return res.status(400).json({ messageError: resError.array() });
+    }
     try {
         const { username, password, company } = req.body;
-        // 1️⃣ Validate input
-        if (!username || !password || !company) {
-            return res.status(400).json({
-                message: "Username, password, and company are required",
-            });
-        }
         // 2️⃣ Find company
         const existingCompany = await prisma.company.findUnique({
             where: { name: company },

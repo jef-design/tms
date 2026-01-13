@@ -30,18 +30,6 @@ const CustomersList = () => {
 
     const debouncedSearch = useDebounce(search);
 
-    // const {data: searchData} = useQuery({
-    //     queryKey: ["employees", debouncedSearch],
-    //     queryFn: async () => {
-    //         const res = await axiosInstance.get("/api/customer/search", {
-    //             params: {search},
-    //         });
-    //         return res.data;
-    //     },
-    // });
-    //  const {data: customerFilteredData} = useQuery({
-    //     queryKey: ["getlists", page],
-    //     queryFn: () => axiosInstance.get(`/api/customer/filter?page=${page}`).then((res) => res.data),
     // });
     const { data: customerFilteredData, isLoading } = useQuery({
     queryKey: ["customers", debouncedSearch, page],

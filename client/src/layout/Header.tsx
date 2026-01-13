@@ -37,7 +37,8 @@ const Header = () => {
   return (
     <>
       {/* HEADER */}
-      <header className="bg-gray-800 px-4 py-3 flex items-center justify-between relative">
+      <header className="sticky top-0 z-50 bg-gray-800 px-4 py-3 flex items-center justify-between">
+
         {/* Left */}
         <div className="flex items-center gap-4">
           <button

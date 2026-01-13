@@ -5,7 +5,7 @@ import { registerValidator, signInValidator } from "../middleware/validationMidd
 const router = express.Router();
 
 router.post('/login', signInValidator, loginUser)
-router.post('/registerValidator', registerValidator)
+router.post('/signup', registerValidator, registerUser)
 
 
 

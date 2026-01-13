@@ -26,7 +26,7 @@ export default function SignUp() {
     });
     const [isOpen, setIsOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState<IErrorMessage | string>("");
-console.log(errorMessage)
+    console.log(errorMessage);
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
         setFormData((prev) => ({...prev, [name]: value}));
@@ -92,7 +92,12 @@ console.log(errorMessage)
                             className='w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm
                focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none'
                         />
-
+                        {Array.isArray(errorMessage) &&
+                            errorMessage?.find((mes: IErrorMessage) => mes?.path === "company") && (
+                                <p className='text-red-400 font-semibold text-xs'>
+                                    {errorMessage.find((err: IErrorMessage) => err?.path === "company")?.msg}
+                                </p>
+                            )}
                         {isOpen && (
                             <ul className='absolute z-10 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-md max-h-48 overflow-auto'>
                                 {companies
@@ -117,13 +122,7 @@ console.log(errorMessage)
                             </ul>
                         )}
                     </div>
-                    {Array.isArray(errorMessage) &&
-                        errorMessage?.find((mes: IErrorMessage) => mes?.path === "company") && (
-                            <p className='text-red-400 font-semibold text-xs'>
-                                {errorMessage.find((err: IErrorMessage) => err?.path === "company")?.msg}
-                            </p>
-                        )}
-
+                    
                     {/* Username */}
                     <div>
                         <label className='block text-sm font-medium text-gray-700 mb-1'>Username</label>
@@ -135,7 +134,7 @@ console.log(errorMessage)
                             placeholder='Enter your username'
                             className='w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none'
                         />
-                        \
+                        
                         {Array.isArray(errorMessage) &&
                             errorMessage?.find((mes: IErrorMessage) => mes?.path === "username") && (
                                 <p className='text-red-400 font-semibold text-xs'>
