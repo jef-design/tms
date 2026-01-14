@@ -5,7 +5,7 @@ import { prisma } from "../lib/prisma.js";
 import { validationResult } from "express-validator";
 
 export const loginUser = async (req: Request, res: Response) => {
-    console.log(req.body)
+    console.log(req.body, 'ASD')
    
      const resError = validationResult(req);
   if (!resError.isEmpty()) {
@@ -44,8 +44,8 @@ export const loginUser = async (req: Request, res: Response) => {
     }
 
     // 3. Compare password
-    // const isPasswordValid = await bcrypt.compare(password, user.password);
-     const isPasswordValid = password === user?.password
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+     
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Wrong username or password" });
     }

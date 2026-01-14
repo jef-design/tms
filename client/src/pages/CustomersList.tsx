@@ -174,7 +174,7 @@ const CustomersList = () => {
                     <table className='w-full text-sm'>
                     {/* TABLE HEADER (Hidden on Mobile) */}
                     <thead className='hidden md:table-header-group'>
-                        <tr className='text-gray-400 border-b border-gray-700'>
+                        <tr className='text-slate-900 font-semibold uppercase border-b border-gray-700'>
                             <th className='text-left py-3'>Customer ID</th>
                             <th className='text-left py-3'>Customer</th>
                             <th className='text-left py-3'>Contact No.</th>

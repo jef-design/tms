@@ -4,6 +4,8 @@ import {useMutation} from "@tanstack/react-query";
 import {axiosInstance} from "../services/axiosInstance";
 import axios from "axios";
 import {useNavigate} from "react-router-dom";
+import { useStore } from "../services/useStore";
+import { toast, Toaster } from "sonner";
 
 interface LoginFormData {
     username: string;
@@ -18,6 +20,7 @@ export interface IErrorMessage {
     msg?: string;
 }
 export default function LogIn() {
+    const {setLogInUser} = useStore()
     const navigate = useNavigate();
     const [formData, setFormData] = useState<LoginFormData>({
         username: "",
@@ -52,6 +55,8 @@ export default function LogIn() {
         },
         onSuccess: (statusData) => {
             console.log(statusData);
+             setLogInUser(statusData?.user);
+             toast.success(`Sign in Success Welcome`)
             navigate("/");
         },
     });
@@ -65,6 +70,7 @@ export default function LogIn() {
 
     return (
         <div className='min-h-screen flex items-center justify-center bg-gray-100 px-4'>
+            <Toaster richColors />
             <div className='w-full max-w-md rounded-2xl bg-white shadow-lg p-8'>
                 {/* Header */}
                 <div className='mb-6 text-center'>
