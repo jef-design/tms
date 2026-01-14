@@ -14,6 +14,10 @@ const Pagination = ({
   pageHandler,
 }: IPagination) => {
 
+  const toTopPage = () => {
+    window.scrollTo(0, 0);
+  };
+
   const getPaginationRange = () => {
     const maxVisiblePages = 5;
     const range: number[] = [];
@@ -39,12 +43,14 @@ const Pagination = ({
   const handlePrevClick = () => {
     if (currentPage > 1) {
       pageHandler(currentPage - 1);
+      toTopPage();
     }
   };
 
   const handleNextClick = () => {
     if (currentPage < totalPages) {
       pageHandler(currentPage + 1);
+      toTopPage();
     }
   };
 

@@ -183,159 +183,97 @@ const CustomersList = () => {
                         <p>No Results found.</p>
                     </div>
                 ): (
-                    <div className="w-full overflow-x-auto">
-  <table className="min-w-[1100px] w-full text-sm">
-    
-    <thead>
-      <tr className="text-gray-400 border-b border-gray-700">
-        <th className="text-left py-3">Customer ID</th>
-        <th className="text-left py-3">Customer</th>
-        <th className="text-left py-3">Contact No.</th>
-        <th className="text-left py-3">Salesman</th>
-        <th className="text-left py-3">Longitude</th>
-        <th className="text-left py-3">Latitude</th>
-        <th className="text-left py-3">Tagged Status</th>
-        <th className="text-left py-3">Remarks</th>
-      </tr>
-    </thead>
+                    <table className='w-full text-sm'>
+                    {/* TABLE HEADER (Hidden on Mobile) */}
+                    <thead className='hidden md:table-header-group'>
+                        <tr className='text-gray-400 border-b border-gray-700'>
+                            <th className='text-left py-3'>Customer ID</th>
+                            <th className='text-left py-3'>Customer</th>
+                            <th className='text-left py-3'>Contact No.</th>
+                            <th className='text-left py-3'>Salesman</th>
+                            <th className='text-left py-3'>Longitude</th>
+                            <th className='text-left py-3'>Latitude</th>
+                            <th className='text-left py-3'>Tagged Status</th>
+                            <th className='text-left py-3'>Remarks</th>
+                        </tr>
+                    </thead>
 
-    <tbody>
-      {customerFilteredData?.list?.map((order: any) => (
-        <tr
-          key={order.customer_code}
-          onClick={() =>
-            storeCoordinateHandler(order.customer_code, order.longitude, order.latitude)
-          }
-          className="border-b hover:bg-gray-100 cursor-pointer"
-        >
-          <td className="py-3">{order.customer_code}</td>
-          <td className="py-3">{order.customer_name}</td>
-          <td className="py-3">{order.contact}</td>
-          <td className="py-3">{order.salesman}</td>
-          <td className="py-3">{order.longitude}</td>
-          <td className="py-3">{order.latitude}</td>
-          <td className="py-3">
-            <CustomerTaggedStatus status={order.taggingStatus} />
-          </td>
-          <td
-            className="py-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <select
-              value={
-                selectedRemark?.customer_code === order.customer_code
-                  ? selectedRemark?.remarks
-                  : order.remarks ?? ""
-              }
-              onChange={(e) =>
-                handleRemarkChange(order.customer_code, e.target.value)
-              }
-              className="text-xs px-2 py-1 rounded border"
-            >
-              <option value="" disabled>Select Remark</option>
-              <option value="ACCURATE">ACCURATE</option>
-              <option value="WRONG_TAGGING">WRONG TAGGING</option>
-              <option value="CLOSED">CLOSED / NO LONGER OPERATING</option>
-            </select>
-          </td>
-        </tr>
-      ))}
-    </tbody>
+                    <tbody>
+                        {customerFilteredData?.list?.map((order: any) => (
+                            <tr
+                                key={order.customer_code}
+                                onClick={() =>
+                                    storeCoordinateHandler(order.customer_code, order.longitude, order.latitude)
+                                }
+                                className='
+            block md:table-row
+            border border-gray-200 md:border-0
+            rounded-lg md:rounded-none
+            mb-4 md:mb-0
+            cursor-pointer
+            hover:bg-gray-100
+            p-4 md:p-0
+          '
+                            >
+                                {/* Order ID */}
+                                <td data-label='Order ID' className='block md:table-cell py-2 md:py-3 font-semibold'>
+                                    {order.customer_code}
+                                </td>
 
-  </table>
-</div>
+                                {/* Customer */}
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.customer_name}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.contact}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.salesman}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.longitude}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
+                                <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
+                                    <p className='font-medium'>{order.latitude}</p>
+                                    <p className='text-xs text-gray-400'>{order.type}</p>
+                                </td>
 
-        //             <table className='w-full text-sm sm:overflow-x-auto'>
-        //             {/* TABLE HEADER (Hidden on Mobile) */}
-        //             <thead className='hidden md:table-header-group'>
-        //                 <tr className='text-gray-400 border-b border-gray-700'>
-        //                     <th className='text-left py-3'>Customer ID</th>
-        //                     <th className='text-left py-3'>Customer</th>
-        //                     <th className='text-left py-3'>Contact No.</th>
-        //                     <th className='text-left py-3'>Salesman</th>
-        //                     <th className='text-left py-3'>Longitude</th>
-        //                     <th className='text-left py-3'>Latitude</th>
-        //                     <th className='text-left py-3'>Tagged Status</th>
-        //                     <th className='text-left py-3'>Remarks</th>
-        //                 </tr>
-        //             </thead>
+                                {/* ETA */}
+                                <td data-label='ETA' className='block md:table-cell py-2 md:py-2'>
+                                    <CustomerTaggedStatus status={order.taggingStatus} />
+                                </td>
 
-        //             <tbody>
-        //                 {customerFilteredData?.list?.map((order: any) => (
-        //                     <tr
-        //                         key={order.customer_code}
-        //                         onClick={() =>
-        //                             storeCoordinateHandler(order.customer_code, order.longitude, order.latitude)
-        //                         }
-        //                         className='
-        //     block md:table-row
-        //     border border-gray-200 md:border-0
-        //     rounded-lg md:rounded-none
-        //     mb-4 md:mb-0
-        //     cursor-pointer
-        //     hover:bg-gray-100
-        //     p-4 md:p-0
-        //   '
-        //                     >
-        //                         {/* Order ID */}
-        //                         <td data-label='Order ID' className='block md:table-cell py-2 md:py-3 font-semibold'>
-        //                             {order.customer_code}
-        //                         </td>
-
-        //                         {/* Customer */}
-        //                         <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
-        //                             <p className='font-medium'>{order.customer_name}</p>
-        //                             <p className='text-xs text-gray-400'>{order.type}</p>
-        //                         </td>
-        //                         <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
-        //                             <p className='font-medium'>{order.contact}</p>
-        //                             <p className='text-xs text-gray-400'>{order.type}</p>
-        //                         </td>
-        //                         <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
-        //                             <p className='font-medium'>{order.salesman}</p>
-        //                             <p className='text-xs text-gray-400'>{order.type}</p>
-        //                         </td>
-        //                         <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
-        //                             <p className='font-medium'>{order.longitude}</p>
-        //                             <p className='text-xs text-gray-400'>{order.type}</p>
-        //                         </td>
-        //                         <td data-label='Customer' className='block md:table-cell py-2 md:py-2'>
-        //                             <p className='font-medium'>{order.latitude}</p>
-        //                             <p className='text-xs text-gray-400'>{order.type}</p>
-        //                         </td>
-
-        //                         {/* ETA */}
-        //                         <td data-label='ETA' className='block md:table-cell py-2 md:py-2'>
-        //                             <CustomerTaggedStatus status={order.taggingStatus} />
-        //                         </td>
-
-        //                         {/* Status */}
-        //                         <td
-        //                             data-label='Remarks'
-        //                             className='block md:table-cell py-2 md:py-2'
-        //                             onClick={(e) => e.stopPropagation()}
-        //                         >
-        //                             <select
-        //                                 value={
-        //                                     selectedRemark?.customer_code === order.customer_code
-        //                                         ? selectedRemark?.remarks
-        //                                         : order.remarks ?? ""
-        //                                 }
-        //                                 onChange={(e) => handleRemarkChange(order.customer_code, e.target.value)}
-        //                                 className='text-xs px-2 py-1 rounded border'
-        //                             >
-        //                                 <option value='' disabled>
-        //                                     Select Remark
-        //                                 </option>
-        //                                 <option value='ACCURATE'>ACCURATE</option>
-        //                                 <option value='WRONG_TAGGING'>WRONG TAGGING</option>
-        //                                 <option value='CLOSED'>CLOSED / NO LONGER OPERATING</option>
-        //                             </select>
-        //                         </td>
-        //                     </tr>
-        //                 ))}
-        //             </tbody>
-        //         </table>
+                                {/* Status */}
+                                <td
+                                    data-label='Remarks'
+                                    className='block md:table-cell py-2 md:py-2'
+                                    onClick={(e) => e.stopPropagation()}
+                                >
+                                    <select
+                                        value={
+                                            selectedRemark?.customer_code === order.customer_code
+                                                ? selectedRemark?.remarks
+                                                : order.remarks ?? ""
+                                        }
+                                        onChange={(e) => handleRemarkChange(order.customer_code, e.target.value)}
+                                        className='text-xs px-2 py-1 rounded border'
+                                    >
+                                        <option value='' disabled>
+                                            Select Remark
+                                        </option>
+                                        <option value='ACCURATE'>ACCURATE</option>
+                                        <option value='WRONG_TAGGING'>WRONG TAGGING</option>
+                                        <option value='CLOSED'>CLOSED / NO LONGER OPERATING</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
                 )}
                 {customerFilteredData?.list?.length ? (
                     <Pagination
