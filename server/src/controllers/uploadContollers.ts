@@ -169,7 +169,7 @@ export const exportCustomersToExcel = async (req: Request, res: Response) => {
 
     worksheet.columns = EXPORT_COLUMNS;
 
-    customers.forEach((cust) => worksheet.addRow(cust));
+    customers.forEach((cust: any) => worksheet.addRow(cust));
 
     // 🔥 STYLE HEADER
     const headerRow = worksheet.getRow(1);

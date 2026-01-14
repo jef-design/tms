@@ -7,4 +7,8 @@
 *
 * 🟢 You can import this file directly.
 */
-export {};
+export const Role = {
+    SUPER_ADMIN: 'SUPER_ADMIN',
+    COMPANY_ADMIN: 'COMPANY_ADMIN',
+    USER: 'USER'
+};

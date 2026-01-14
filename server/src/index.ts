@@ -2,6 +2,8 @@ import express from 'express'
 import dotenv from 'dotenv'
 import uploadRoute from './routes/uploadRoute.js'
 import customerRoute from './routes/customerRoute.js'
+import authRoute from './routes/credentialRoute.js'
+
 import cors from 'cors'
 dotenv.config()
 
@@ -20,6 +22,7 @@ app.get('/', (req, res ) => {
 
 app.use('/api/upload', uploadRoute)
 app.use('/api/customer', customerRoute)
+app.use('/api/auth', authRoute)
 
 app.listen(PORT, () => {
     console.log(`connected to server on PORT ${PORT}`)

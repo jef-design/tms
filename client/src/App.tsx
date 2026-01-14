@@ -6,6 +6,8 @@ import Home from './pages/Home'
 import CustomerTagging from './pages/CustomerTagging'
 import CustomersList from './pages/CustomersList'
 import Account from './pages/Account'
+import LogIn from './pages/LogIn'
+import SignUp from './pages/SignUp'
 
 function App() {
   const router = createBrowserRouter([
@@ -32,6 +34,15 @@ function App() {
          {
           path: '/account',
           element: <Account />
+        },
+          {
+          path: '/login',
+          element: <LogIn />
+        }
+        ,
+          {
+          path: '/signup',
+          element: <SignUp />
         }
       ]
     }
