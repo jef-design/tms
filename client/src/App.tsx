@@ -10,6 +10,7 @@ import LogIn from './pages/LogIn'
 import SignUp from './pages/SignUp'
 
 function App() {
+  console.log('test bracnh')
   const router = createBrowserRouter([
     {
       path: '/',
